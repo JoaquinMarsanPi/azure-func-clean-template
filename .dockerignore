@@ -1,0 +1,5 @@
+__pycache__/
+.git/
+.local.settings.json
+.vscode/
+tests/
