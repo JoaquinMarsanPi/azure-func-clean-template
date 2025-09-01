@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.env
+local.settings.json
+infra/params.local.json
