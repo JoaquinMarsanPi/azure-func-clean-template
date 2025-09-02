@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-// ----------- Parámetros (podés dejar defaults) ------------
+// ----------- Parámetros ------------
 @description('Nombre del ACR')
 param acrName string = 'acraiagenteslab'
 
@@ -93,7 +93,7 @@ resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 var stKey = st.listKeys().keys[0].value
 var storageConn = 'DefaultEndpointsProtocol=https;AccountName=${st.name};AccountKey=${stKey};EndpointSuffix=${environment().suffixes.storage}'
 
-// ------------- Container App (Functions nativo) -------------
+// ------------- Container App -------------
 resource app 'Microsoft.App/containerApps@2024-03-01' = if (deployContainerApp) {
   name: containerAppName
   location: location
@@ -142,7 +142,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = if (deployContainerApp) 
   }
 }
 
-// Si usás identidad administrada, damos permiso AcrPull
+// AcrPull
 resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployContainerApp && !useAcrAdminCreds) {
   name: guid(acr.id, app.id, 'AcrPull')
   scope: acr
