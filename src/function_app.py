@@ -1,5 +1,5 @@
 import azure.functions as func
-from .ping import make_ping
+from functions.ping import make_ping  # <- importa desde el submódulo "functions"
 
 app = func.FunctionApp()
 
