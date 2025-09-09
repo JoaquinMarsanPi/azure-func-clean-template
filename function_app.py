@@ -1,5 +1,5 @@
 import azure.functions as func
-from functions.ping import make_ping
+from app.business.ping import make_ping
 
 app = func.FunctionApp()
 

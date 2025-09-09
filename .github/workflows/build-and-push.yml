@@ -1,0 +1,23 @@
+name: build-and-push-to-acr
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login \
+            ${{ secrets.ACR_NAME }}.azurecr.io \
+            -u "${{ secrets.ACR_USERNAME }}" --password-stdin
+
+      - name: Build & push image (latest + sha)
+        run: |
+          REPO=${{ secrets.ACR_NAME }}.azurecr.io/func-clean-template
+          docker build -t $REPO:latest -t $REPO:${{ github.sha }} -f Dockerfile .
+          docker push $REPO:latest
+          docker push $REPO:${{ github.sha }}
