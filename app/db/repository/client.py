@@ -1,4 +1,3 @@
-# db/repository/client.py
 from __future__ import annotations
 from typing import Any, Iterable, Optional
 from azure.cosmos import CosmosClient, ContainerProxy, DatabaseProxy
@@ -19,7 +18,6 @@ class CosmosDBClient:
     def is_configured(self) -> bool:
         return CosmosDBClient._client is not None
 
-    # --- factories -----------------------------------------------------------
     def db(self) -> DatabaseProxy:
         assert self.is_configured, "Cosmos no configurado (COSMOS_URL/COSMOS_KEY)"
         return CosmosDBClient._client.get_database_client(settings.COSMOS_DB)  # type: ignore
@@ -27,7 +25,6 @@ class CosmosDBClient:
     def container(self, name: str) -> ContainerProxy:
         return self.db().get_container_client(name)
 
-    # --- helpers CRUD genéricos ---------------------------------------------
     def read(self, container: str, id: str, pk: Optional[str] = None) -> dict[str, Any]:
         c = self.container(container)
         return c.read_item(item=id, partition_key=pk or id)

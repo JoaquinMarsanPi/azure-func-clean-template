@@ -1,4 +1,3 @@
-# en function_app.py
 import json, azure.functions as func
 from db.repository.client import get_client
 from app.core.config import settings
@@ -12,7 +11,6 @@ def db_health(_: func.HttpRequest) -> func.HttpResponse:
     if not cli.is_configured:
         return func.HttpResponse(json.dumps({"ok": False, "msg": "COSMOS no configurado"}), mimetype="application/json")
     try:
-        # ping barato
         list(cli.db().list_containers())
         return func.HttpResponse(json.dumps({"ok": True, "db": settings.COSMOS_DB}), mimetype="application/json")
     except Exception as ex:
