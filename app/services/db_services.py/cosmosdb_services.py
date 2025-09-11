@@ -1,12 +1,12 @@
 from db.repository.resources import ResourceRepository
 from db.repository.conversations import ConversationRepository
 from db.repository.blocked import BlockedRepository
-from db.models import Resource, Conversation, BlockedItem
+from db.models import Resource, Conversation, BlockedWord
 from dataclasses import asdict
 
 class DBService:
     def __init__(self):
-        # Initialize repositories for resources, conversations, and blocked users
+        # Initialize repositories for resources, conversations, and blocked words
         self.resource_repo = ResourceRepository()
         self.conversation_repo = ConversationRepository()
         self.blocked_repo = BlockedRepository()
@@ -45,33 +45,39 @@ class DBService:
         conversation = self.conversation_repo.get(id)
         return asdict(conversation) if conversation else None
 
-    def set_conversation_last_message(self, *, id: str, text: str) -> dict | None:
-        # Update the last message of a conversation
+    def validate_conversation(self, id: str) -> dict | None:
+        # Retrieve a conversation and validate its content against blocked words
         conversation = self.conversation_repo.get(id)
         if not conversation:
             return None
-        conversation.last_message = text
-        self.conversation_repo.upsert(conversation)
-        return asdict(conversation)
+
+        # Check if the conversation contains blocked words
+        blocked_words = [word.id for word in self.blocked_repo.get_all()]
+        contains_blocked = any(word in conversation.last_message for word in blocked_words)
+
+        return {
+            "conversation": asdict(conversation),
+            "contains_blocked_words": contains_blocked
+        }
 
     def delete_conversation(self, id: str) -> bool:
         # Delete a conversation by ID
         return self.conversation_repo.delete(id)
 
-    # Blocked
-    def is_blocked(self, user_id: str) -> bool:
-        # Check if a user is blocked
-        blocked = self.blocked_repo.get(user_id)
+    # Blocked Words
+    def is_blocked_word(self, word: str) -> bool:
+        # Check if a word is blocked
+        blocked = self.blocked_repo.get(word)
         return blocked is not None
 
-    def block_user(self, *, user_id: str, reason: str = "") -> dict:
-        # Block a user with an optional reason
-        if not user_id:
-            raise ValueError("'user_id' is required")
-        blocked_item = BlockedItem(id=user_id, reason=reason)
-        self.blocked_repo.upsert(blocked_item)
-        return asdict(blocked_item)
+    def block_word(self, *, word: str, reason: str = "") -> dict:
+        # Block a word with an optional reason
+        if not word:
+            raise ValueError("'word' is required")
+        blocked_word = BlockedWord(id=word, reason=reason)
+        self.blocked_repo.upsert(blocked_word)
+        return asdict(blocked_word)
 
-    def unblock_user(self, user_id: str) -> bool:
-        # Unblock a user by ID
-        return self.blocked_repo.delete(user_id)
+    def unblock_word(self, word: str) -> bool:
+        # Unblock a word by ID
+        return self.blocked_repo.delete(word)
