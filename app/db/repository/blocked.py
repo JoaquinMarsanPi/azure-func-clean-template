@@ -23,3 +23,12 @@ class BlockedRepository:
         if not self.cosmos.is_configured:
             self._mem[b.id] = b; return
         self.cosmos.upsert(self.container_name, asdict(b))
+
+    def delete(self, bid: str) -> bool:
+        if not self.cosmos.is_configured:
+            return self._mem.pop(bid, None) is not None
+        try:
+            self.cosmos.delete(self.container_name, bid)
+            return True
+        except Exception:
+            return False

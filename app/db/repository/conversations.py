@@ -23,3 +23,12 @@ class ConversationRepository:
         if not self.cosmos.is_configured:
             self._mem[c.id] = c; return
         self.cosmos.upsert(self.container_name, asdict(c))
+
+    def delete(self, cid: str) -> bool:
+        if not self.cosmos.is_configured:
+            return self._mem.pop(cid, None) is not None
+        try:
+            self.cosmos.delete(self.container_name, cid)
+            return True
+        except Exception:
+            return False
